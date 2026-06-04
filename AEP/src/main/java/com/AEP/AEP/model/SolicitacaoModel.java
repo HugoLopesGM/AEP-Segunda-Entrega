@@ -3,6 +3,7 @@ package com.AEP.AEP.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,10 +15,15 @@ public class SolicitacaoModel {
     private Long protocolo;
 
     private String descricao;
-
     private String prioridade;
-
     private String rua;
+
+    private String categoria;
+    private LocalDate previsaoConclusao;
+
+
+    @Enumerated(EnumType.STRING)
+    private Status statusAtual;
 
     @ManyToOne
     private CidadaoModel solicitante;
