@@ -2,27 +2,43 @@ package com.AEP.AEP.service;
 
 import com.AEP.AEP.model.SolicitacaoModel;
 import com.AEP.AEP.repository.SolicitacaoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SolicitacaoService {
-    private final SolicitacaoRepository repository;
-
-    public SolicitacaoService(SolicitacaoRepository repository) {
-        this.repository = repository;
-    }
-
-    public SolicitacaoModel salvar(SolicitacaoModel solicitacao) {
-        return repository.save(solicitacao);
-    }
+    @Autowired
+    private SolicitacaoRepository repository;
 
     public List<SolicitacaoModel> listar() {
         return repository.findAll();
     }
 
-    public SolicitacaoModel buscar(Long id) {
-        return repository.findById(id).orElse(null);
+
+    public SolicitacaoModel salvar(SolicitacaoModel solicitacao) {
+        return repository.save(solicitacao);
+    }
+
+
+    public Optional<SolicitacaoModel> buscarPorId(Long id) {
+        return repository.findById(id);
+    }
+
+
+    public void deletar(Long id) {
+        repository.deleteById(id);
+    }
+
+
+    public SolicitacaoModel alterarSolicitacao(
+            Long id,
+            SolicitacaoModel solicitacao) {
+
+        solicitacao.setProtocolo(id);
+
+        return solicitacao;
     }
 }
