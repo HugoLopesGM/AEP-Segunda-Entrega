@@ -19,7 +19,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <!-- Menu Lateral (Sidebar) igual ao do Index -->
+        <!-- Menu Lateral (Sidebar) -->
         <nav class="col-md-2 d-none d-md-block sidebar">
             <div class="text-center mb-4">
                 <h4 class="text-primary fw-bold"><i class="bi bi-eye"></i> ObservaAção</h4>
@@ -45,23 +45,23 @@
 
         <!-- Conteúdo Principal -->
         <main class="col-md-10 ms-sm-auto px-0">
-            <!-- Barra Superior (Topbar) -->
+            <!-- Barra Superior -->
             <div class="topbar d-flex justify-content-between align-items-center">
                 <div class="input-group w-50">
                     <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
                     <input type="text" class="form-control border-start-0" placeholder="Buscar...">
                 </div>
                 <div class="user-profile text-end">
-                    <span class="fw-bold d-block">Usuário Logado</span>
+                    <span class="fw-bold d-block" th:text="${nomeUsuario}">Usuário Logado</span>
                 </div>
             </div>
 
             <!-- Formulário -->
             <div class="p-4">
-                <h3 class="mb-1"><i class="bi bi-arrow-left me-2"></i> Nova denúncia</h3>
+                <h3 class="mb-1"><a th:href="@{/solicitacoes}" class="text-dark text-decoration-none"><i class="bi bi-arrow-left me-2"></i></a> Nova denúncia</h3>
                 <p class="text-muted mb-4">Preencha os dados abaixo para realizar sua denúncia.</p>
 
-                <!-- Alerta de Erro (Validação dos 10 caracteres) -->
+                <!-- Alerta de Erro -->
                 <div class="alert alert-danger" th:if="${erro}" th:text="${erro}"></div>
 
                 <div class="form-card shadow-sm">
@@ -115,6 +115,15 @@
                                     <label class="btn btn-outline-secondary" for="prioAlta">Alta</label>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Switch de Denúncia Anônima -->
+                        <div class="form-check form-switch mb-4 bg-light p-3 rounded border">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="anonimoCheck" th:field="*{anonimo}">
+                            <label class="form-check-label fw-bold text-dark" for="anonimoCheck">
+                                Quero fazer esta denúncia de forma anônima
+                            </label>
+                            <small class="d-block text-muted ms-5">Seus dados não aparecerão no histórico público da denúncia.</small>
                         </div>
 
                         <div class="d-flex justify-content-between pt-3 border-top">

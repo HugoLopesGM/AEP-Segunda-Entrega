@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes da Denúncia - ObservaAção</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { height: 100vh; background-color: #ffffff; border-right: 1px solid #dee2e6; padding-top: 20px; }
+        .nav-link { color: #495057; font-weight: 500; margin-bottom: 5px; border-radius: 5px; }
+        .nav-link:hover, .nav-link.active { background-color: #e9ecef; color: #0d6efd; }
+        .topbar { background-color: #ffffff; border-bottom: 1px solid #dee2e6; padding: 15px 20px; }
+        .card-detalhes { background: white; border-radius: 10px; border: 1px solid #dee2e6; padding: 30px; }
+        .historico-item { border-left: 3px solid #0d6efd; padding-left: 15px; margin-bottom: 20px; }
+        .historico-data { font-size: 0.85rem; color: #6c757d; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Menu Lateral (Sidebar) -->
+        <nav class="col-md-2 d-none d-md-block sidebar">
+            <div class="text-center mb-4">
+                <h4 class="text-primary fw-bold"><i class="bi bi-eye"></i> ObservaAção</h4>
+            </div>
+            <ul class="nav flex-column px-2">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/solicitacoes}">
+                        <i class="bi bi-grid-1x2 me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${!isAdmin}">
+                    <a class="nav-link" th:href="@{/solicitacoes/nova}">
+                        <i class="bi bi-plus-circle me-2"></i> Nova denúncia
+                    </a>
+                </li>
+                <li class="nav-item mt-5">
+                    <a class="nav-link text-danger" th:href="@{/logout}">
+                        <i class="bi bi-box-arrow-right me-2"></i> Sair
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="col-md-10 ms-sm-auto px-0">
+            <!-- Barra Superior -->
+            <div class="topbar d-flex justify-content-between align-items-center">
+                <div class="input-group w-50">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-start-0" placeholder="Buscar...">
+                </div>
+                <div class="user-profile text-end">
+                    <span class="fw-bold d-block" th:text="${nomeUsuario}">Usuário Logado</span>
+                    <small class="text-muted" th:text="${isAdmin ? 'Administrador' : 'Cidadão'}">Perfil de Acesso</small>
+                </div>
+            </div>
+
+            <!-- Área de Detalhes -->
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0">
+                        <a th:href="@{/solicitacoes}" class="text-dark text-decoration-none"><i class="bi bi-arrow-left me-2"></i></a>
+                        Detalhes da Denúncia <span class="text-primary" th:text="'#' + ${solicitacao.protocolo}"></span>
+                    </h3>
+
+                    <div>
+                        <span class="badge rounded-pill bg-secondary fs-6" th:if="${solicitacao.statusAtual.name() == 'ABERTO'}">Aberta</span>
+                        <span class="badge rounded-pill bg-warning text-dark fs-6" th:if="${solicitacao.statusAtual.name() == 'EM_EXECUCAO'}">Em Andamento</span>
+                        <span class="badge rounded-pill bg-success fs-6" th:if="${solicitacao.statusAtual.name() == 'RESOLVIDO'}">Resolvido</span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Coluna de Informações -->
+                    <div class="col-md-7">
+                        <div class="card-detalhes shadow-sm mb-4">
+                            <h5 class="fw-bold border-bottom pb-2 mb-3">Informações Gerais</h5>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="text-muted mb-1 small">Categoria</p>
+                                    <p class="fw-bold" th:text="${solicitacao.categoria}"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-muted mb-1 small">Prioridade</p>
+                                    <p class="fw-bold" th:text="${solicitacao.prioridade}"></p>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="text-muted mb-1 small">Endereço / Localização</p>
+                                <p class="fw-bold"><i class="bi bi-geo-alt text-danger me-1"></i> <span th:text="${solicitacao.rua}"></span></p>
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="text-muted mb-1 small">Descrição do Problema</p>
+                                <div class="p-3 bg-light rounded border" th:text="${solicitacao.descricao}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna de Histórico -->
+                    <div class="col-md-5">
+                        <div class="card-detalhes shadow-sm h-100">
+                            <h5 class="fw-bold border-bottom pb-2 mb-4">Andamento / Histórico</h5>
+
+                            <!-- Loop que lista todas as atualizações de status -->
+                            <div th:each="h : ${solicitacao.historico}" class="historico-item">
+                                <p class="fw-bold mb-1">
+                                    Status: <span class="text-primary" th:text="${h.status}"></span>
+                                </p>
+                                <p class="historico-data mb-1">
+                                    <i class="bi bi-calendar3 me-1"></i> <span th:text="${#temporals.format(h.data, 'dd/MM/yyyy HH:mm')}"></span>
+                                    <br>
+                                    <i class="bi bi-person me-1"></i> Responsável: <span th:text="${h.responsavel}"></span>
+                                </p>
+                                <p class="text-muted small mt-2 bg-light p-2 rounded" th:text="${h.comentario}"></p>
+                            </div>
+
+                            <!-- Formulário para o Admin adicionar comentários -->
+                            <div class="mt-4 border-top pt-4" th:if="${isAdmin}">
+                                <form th:action="@{/solicitacoes/adicionar-comentario/{id}(id=${solicitacao.protocolo})}" method="post">
+                                    <label class="form-label fw-bold"><i class="bi bi-chat-left-text me-1"></i> Adicionar Observação Interna</label>
+                                    <textarea class="form-control mb-2" name="comentario" rows="3" placeholder="Escreva uma resposta ou atualização sobre o caso..." required></textarea>
+                                    <button type="submit" class="btn btn-sm btn-primary w-100">Adicionar ao Histórico</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

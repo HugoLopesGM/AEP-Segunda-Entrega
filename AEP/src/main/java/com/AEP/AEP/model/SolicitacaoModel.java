@@ -18,12 +18,16 @@ public class SolicitacaoModel {
     private String prioridade;
     private String rua;
 
+    // Campos do Wireframe
     private String categoria;
     private LocalDate previsaoConclusao;
 
 
     @Enumerated(EnumType.STRING)
     private Status statusAtual;
+    private String autor;
+
+    private boolean anonimo;
 
     @ManyToOne
     private CidadaoModel solicitante;

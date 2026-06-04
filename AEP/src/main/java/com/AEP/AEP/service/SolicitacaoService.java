@@ -5,6 +5,7 @@ import com.AEP.AEP.model.SolicitacaoModel;
 import com.AEP.AEP.model.Status;
 import com.AEP.AEP.repository.SolicitacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,23 +24,24 @@ public class SolicitacaoService {
     }
 
     public SolicitacaoModel salvar(SolicitacaoModel solicitacao) {
-
-
         if (solicitacao.getDescricao() == null || solicitacao.getDescricao().length() < 10) {
             throw new IllegalArgumentException("A descrição deve ter no mínimo 10 caracteres.");
         }
 
-
         if (solicitacao.getProtocolo() == null) {
+            String usuarioLogado = SecurityContextHolder.getContext().getAuthentication().getName();
+            solicitacao.setAutor(usuarioLogado);
             solicitacao.setStatusAtual(Status.ABERTO);
-
-
             solicitacao.setPrevisaoConclusao(LocalDate.now().plusDays(15));
 
             HistoricoStatusModel historicoInicial = new HistoricoStatusModel();
             historicoInicial.setStatus(Status.ABERTO);
             historicoInicial.setComentario("Denúncia recebida pelo sistema.");
-            historicoInicial.setResponsavel("Sistema");
+
+            // Verifica se é anônimo para o histórico
+            String nomeExibicao = solicitacao.isAnonimo() ? "Usuário Anônimo" : usuarioLogado;
+            historicoInicial.setResponsavel(nomeExibicao);
+
             historicoInicial.setData(LocalDateTime.now());
             historicoInicial.setSolicitacao(solicitacao);
 
@@ -57,16 +59,41 @@ public class SolicitacaoService {
         repository.deleteById(id);
     }
 
+    public long contarAbertas() { return repository.countByStatusAtual(Status.ABERTO); }
+    public long contarEmAndamento() { return repository.countByStatusAtual(Status.EM_EXECUCAO); }
+    public long contarResolvidas() { return repository.countByStatusAtual(Status.RESOLVIDO); }
 
-    public long contarAbertas() {
-        return repository.countByStatusAtual(Status.ABERTO);
+    public List<SolicitacaoModel> listarPorAutor(String autor) { return repository.findByAutor(autor); }
+    public long contarAbertasPorAutor(String autor) { return repository.countByStatusAtualAndAutor(Status.ABERTO, autor); }
+    public long contarEmAndamentoPorAutor(String autor) { return repository.countByStatusAtualAndAutor(Status.EM_EXECUCAO, autor); }
+    public long contarResolvidasPorAutor(String autor) { return repository.countByStatusAtualAndAutor(Status.RESOLVIDO, autor); }
+
+    public void atualizarStatus(Long id, Status novoStatus) {
+        SolicitacaoModel solicitacao = repository.findById(id).orElseThrow();
+        solicitacao.setStatusAtual(novoStatus);
+
+        HistoricoStatusModel novoHistorico = new HistoricoStatusModel();
+        novoHistorico.setStatus(novoStatus);
+        novoHistorico.setComentario("Status atualizado pelo Administrador.");
+        novoHistorico.setResponsavel("Admin");
+        novoHistorico.setData(LocalDateTime.now());
+        novoHistorico.setSolicitacao(solicitacao);
+
+        solicitacao.getHistorico().add(novoHistorico);
+        repository.save(solicitacao);
     }
 
-    public long contarEmAndamento() {
-        return repository.countByStatusAtual(Status.EM_EXECUCAO);
-    }
+    public void adicionarComentarioAdmin(Long id, String comentario) {
+        SolicitacaoModel solicitacao = repository.findById(id).orElseThrow();
 
-    public long contarResolvidas() {
-        return repository.countByStatusAtual(Status.RESOLVIDO);
+        HistoricoStatusModel novoHistorico = new HistoricoStatusModel();
+        novoHistorico.setStatus(solicitacao.getStatusAtual());
+        novoHistorico.setComentario(comentario);
+        novoHistorico.setResponsavel("Admin");
+        novoHistorico.setData(LocalDateTime.now());
+        novoHistorico.setSolicitacao(solicitacao);
+
+        solicitacao.getHistorico().add(novoHistorico);
+        repository.save(solicitacao);
     }
 }
