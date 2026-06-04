@@ -1,4 +1,9 @@
 package com.AEP.AEP.model;
 
-public class Status {
+public enum Status {
+    ABERTO,
+    TRIAGEM,
+    EM_EXECUCAO,
+    RESOLVIDO,
+    ENCERRADO
 }
