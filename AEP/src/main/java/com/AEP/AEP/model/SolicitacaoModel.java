@@ -18,7 +18,7 @@ public class SolicitacaoModel {
     private String prioridade;
     private String rua;
 
-    // Campos do Wireframe
+
     private String categoria;
     private LocalDate previsaoConclusao;
 

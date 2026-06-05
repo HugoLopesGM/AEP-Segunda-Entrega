@@ -38,7 +38,6 @@ public class SolicitacaoService {
             historicoInicial.setStatus(Status.ABERTO);
             historicoInicial.setComentario("Denúncia recebida pelo sistema.");
 
-            // Verifica se é anônimo para o histórico
             String nomeExibicao = solicitacao.isAnonimo() ? "Usuário Anônimo" : usuarioLogado;
             historicoInicial.setResponsavel(nomeExibicao);
 
